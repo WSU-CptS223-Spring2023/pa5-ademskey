@@ -1,3 +1,6 @@
+// Fernando Medina
+// Testing pushing and committing to Adam's repo
+
 #include "ChainingHash.h"
 #include "ProbingHash.h"
 //#include "ParallelProbingHash.h" 
