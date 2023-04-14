@@ -30,61 +30,155 @@ class ChainingHash : public Hash<K,V> {
 private:
 
 public:
-    ChainingHash(int n = 11) {
+    ChainingHash(int n = 11) 
+    {   
+        this -> Lists.resize(n);
+        this -> currentSize = 0;
     }
 
     ~ChainingHash() {
-        //this->clear();
+        this->clear();
     }
 
-    bool empty() {
+    bool empty() 
+    {   
+        return this -> currentSize == 0;
     }
 
-    int size() {
+    int size() 
+    {   
+        return this -> currentSize;
     }
 
     V& at(const K& key) {
         throw std::out_of_range("Key not in hash");
     }
 
-    V& operator[](const K& key) {
+    V& operator[](const K& key) 
+    {
+        return Lists[hash(key)];  
     }
 
-    int count(const K& key) {
+    int count(const K& key) 
+    {
+        auto & whichList = Lists[myhash(x)];  // Get the list
+        if(auto itr = find(begin(whichList), end(whichList), key ));     // Find the item
+            return iter.size();
+        else
+            return 0;
     }
 
-    void emplace(K key, V value) {
+    void emplace(K key, V value) 
+    {
+        pair = std::make_pair(key, value);  // Create the pair
+        auto & whichList = Lists[myhash(key)];  // Get the list 
+        if(find(begin(whichList), end(whichList), pair.first) != end(whichList)) // If the key is already in the list
+            return false;
+
+        whichList.push_back(std::move(pair.first)); // Insert the key
+
+        // Rehash
+        if( ++currentSize > theLists.size( ) )
+            rehash( );
+
+        return true;
     }
 
-    void insert(const std::pair<K, V>& pair) {
+    void insert(const std::pair<K, V>& pair) 
+    {
+        auto & whichList = Lists[ myhash( x ) ];   // Get the list     
+        if(find(begin(whichList), end( whichList ), pair.first) != end( whichList )) // If the key is already in the list
+            return false;
+
+        whichList.push_back(std::move(pair.first)); // Insert the key
+
+        // Rehash
+        if( ++currentSize > theLists.size( ) )
+            rehash( );
+
+        return true;
     }
 
-    void erase(const K& key) {
+    void erase(const K& key) 
+    {
+        auto & whichList = Lists[myhash(x)];  // Get the list
+        auto itr = find(begin(whichList), end(whichList), x );     // Find the item
+
+        if( itr == end( whichList ) )  // Not found
+            return false;         
+
+        whichList.erase( itr );   // Remove the item
+        --currentSize;          // Decrement the size
+        return true;
     }
 
-    void clear() {
+    void clear() 
+    {
+        for(auto & thisList : Lists)  // For each list in the table
+            thisList.clear();  // Clear the list
+        this -> currentSize = 0;
     }
 
-    int bucket_count() {
+    int bucket_count() //size of hash vector
+    {
+        int count = 0;
+        for (const auto& bucket : Lists)
+            count += bucket.size();
+        return count;
     }
 
-    int bucket_size(int n) {
+    int bucket_size(int n) 
+    {
+        return Lists[n].size();   // Return the size of the list at index n
     }
 
-    int bucket(const K& key) {
+    int bucket(const K& key) 
+    {
+
     }
 
-    float load_factor() {
+    float load_factor() 
+    {
+        return (float)currentSize / this -> bucket_count();
     }
 
-    void rehash() {
-    }
+    void rehash() 
+    {
+        vector<list<V>> oldLists = this -> Lists;  // Create a copy of old table
 
-    void rehash(int n) {
+        // Create new double-sized, empty table
+        theLists.resize(nextPrime(2 * theLists.size()));  // Resize the vector
+        for( auto & thisList : this -> Lists)  // Initialize the vector of Lists
+            thisList.clear();
+
+        // Copy table over
+        this -> currentSize = 0;  // Reset the size
+        for(auto & thisList : oldLists)  // For each list in the old table
+            for( auto & x : thisList)  // For each item in the list
+                insert( std::move( x ));
+    }
+    void rehash(int n) 
+    {
+        vector<list<V>> oldLists = this -> Lists;  // Create a copy of old table
+
+        // Create new double-sized, empty table
+        theLists.resize(n);  // Resize the vector to size passed in
+        for( auto & thisList : this -> Lists)  // Initialize the vector of Lists
+            thisList.clear();
+
+        // Copy table over
+        this -> currentSize = 0;  // Reset the size
+        for(auto & thisList : oldLists)  // For each list in the old table
+            for( auto & x : thisList)  // For each item in the list
+                insert( std::move( x ));
     }
 
 
 private:
+
+    vector<list<V>> Lists;   // The array of Lists
+    int  currentSize;              // Number of items in the hash table
+
     int findNextPrime(int n)
     {
         while (!isPrime(n))
@@ -110,7 +204,6 @@ private:
     int hash(const K& key) {
         return 0;       
     }
-
 };
 
 #endif //__CHAINING_HASH_H
