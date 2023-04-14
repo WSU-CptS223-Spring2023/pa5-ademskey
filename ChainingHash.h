@@ -134,7 +134,10 @@ public:
 
     int bucket(const K& key) 
     {
-
+        if(hash(key) > 0 && hash(key) < Lists.size())
+            return hash(key);  // Return the index of the list that contains the key
+        else
+            throw std::out_of_range("Key not in hash");
     }
 
     float load_factor() 
