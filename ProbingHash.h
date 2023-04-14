@@ -21,9 +21,11 @@ class ProbingHash : public Hash<K,V> { // derived from Hash
 private:
     // Needs a table and a size.
     // Table should be a vector of std::pairs for lazy deletion
+    vector<pair<EntryState, Hash<K,V>>> probVector;
 
 public:
     ProbingHash(int n = 11) {
+        probVector.resize(n);
     }
 
     ~ProbingHash() {
