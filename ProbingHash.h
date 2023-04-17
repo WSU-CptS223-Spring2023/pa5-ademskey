@@ -71,26 +71,25 @@ public:
         { 
             int currentPos = hash( pair.first ); //hash key to find position
 
-            if(probVector[currentPos].first == 0))  // if empty index found
-                success == true;
-                ++currentSize; //incrament the recorded size of vector
+            if(probVector[currentPos].first == 0){  // if empty index found
+                success = true;
+                ++tablesize; //incrament the recorded size of vector
+            }
+            else if( probVector[ currentPos ].second != 2 ){  // if deleted index found
+                ++tablesize; //incrament the recorded size of vector
+                success = true;
+            }
 
-            if( probVector[ currentPos ].second != 2 )  // if deleted index found
-                ++currentSize; //incrament the recorded size of vector
-                success == true;
-
-            if( success == true) //if empty found move into spot
+            else if( success = true) //if empty found move into spot
             {            
                 probVector[ currentPos ].second = pair;  // copye info into array
                 probVector[ currentPos ].first = 1;  // Mark as active
             }
-            curentPos++;  //move to next spot (linear hash)
+            currentPos++;  //move to next spot (linear hash)
         }
         // rehash
-        if( currentSize > probVector.size( ) / 2 )
+        if( tablesize > probVector.size( ) / 2 )
             rehash( );
-
-        return true;
     }
 
     void insert(const std::pair<K, V>& pair) 
@@ -101,26 +100,25 @@ public:
         { 
             int currentPos = hash( pair.first ); //hash key to find position
 
-            if(probVector[currentPos].first == 0)  // if empty index found
-                success == true;
-                ++currentSize; //incrament the recorded size of vector
+            if(probVector[currentPos].first == 0){  // if empty index found
+                success = true;
+                ++tablesize; //incrament the recorded size of vector
+            }
 
-            else if( probVector[ currentPos ].first != 2 )  // if deleted index found
-                ++currentSize; //incrament the recorded size of vector
-                success == true;
+            else if( probVector[ currentPos ].first != 2 ){  // if deleted index found
+                ++tablesize; //incrament the recorded size of vector
+                success = true;
+            }
 
-            if( success == true) //if empty found move into spot
-            {            
+            else if(success == true){ //if empty found move into spot      
                 probVector[ currentPos ].second = pair;  // copye info into array
                 probVector[ currentPos ].first = 1;  // Mark as active
+            currentPos++;  //move to next spot (linear hash)
             }
-            curentPos++;  //move to next spot (linear hash)
         }
         // rehash
-        if( currentSize > probVector.size( ) / 2 )
+        if( tablesize > probVector.size( ) / 2 )
             rehash( );
-
-        return true;
     }
 
     void erase(const K& key) 

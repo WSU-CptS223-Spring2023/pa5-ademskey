@@ -11,6 +11,7 @@
 #include <list>
 #include <stdexcept>
 #include <math.h>
+#include <algorithm>
 
 // Custom project includes
 #include "Hash.h"
@@ -61,21 +62,22 @@ public:
 
     V& operator[](const K& key) 
     {
-        return Lists[hash(key)];  
+        return Lists[hash(key)].front();  
     }
 
     int count(const K& key) 
     {
         auto & whichList = Lists[hash(key)];  // Get the list
         if (auto itr = find(begin(whichList), end(whichList), key); itr != end(whichList))   // Find the item
-            return itr->size();
+            return whichList.size();  // Return the size of the list
         else
             return 0;
+
     }
 
     void emplace(K key, V value) 
     {
-        auto & whichList = theLists[ key ];      
+        auto & whichList = Lists[ key ];      
         if( find( begin( whichList ), end( whichList ), value ) != end( whichList ) )  // If the value is already in the list
             return;
 
@@ -88,14 +90,14 @@ public:
 
     void insert(const std::pair<K, V>& pair) 
     {
-        auto & whichList = theLists[ myhash( pair.second ) ];      
+        auto & whichList = Lists[ hash( pair.second ) ];      
         if( find( begin( whichList ), end( whichList ), pair.second ) != end( whichList ) )  // If the value is already in the list
             return;
 
         whichList.push_back( pair.first);
 
             // Rehash
-        if( ++currentSize > theLists.size( ) )
+        if( ++currentSize > Lists.size( ) )
             rehash( );
 
     }
@@ -105,12 +107,10 @@ public:
         auto & whichList = Lists[hash(key)];  // Get the list
         auto itr = find(begin(whichList), end(whichList), key );     // Find the item (iter is an item in a list)
 
-        if( itr == end( whichList ) )  // Not found
-            return false;         
-
-        whichList.erase( itr );   // Remove the item
-        --currentSize;          // Decrement the size
-        return true;
+        if( itr != end( whichList )){  // If the item is in the list
+            whichList.erase( itr );   // Remove the item
+            --currentSize;          // Decrement the size
+        }
     }
 
     void clear() 
@@ -153,7 +153,7 @@ public:
         std::pair<K, V> insertpair; //declare a pair for isnerting
 
         // Create new double-sized, empty table
-        Lists.resize(findNextPrime(2 * theLists.size()));  // Resize the vector
+        Lists.resize(findNextPrime(2 * Lists.size()));  // Resize the vector
         for( auto & thisList : this -> Lists)  // Initialize the vector of Lists
             thisList.clear();
 
@@ -161,7 +161,7 @@ public:
         this -> currentSize = 0;  // Reset the size
         for(auto & thisList : oldLists)  // For each list in the old table
             for( auto & x : thisList)  // For each item in the list
-                insertpair = (hash(x), x);
+                insertpair = std::make_pair(hash(x), x);
                 insert(insertpair);  // Insert the item
     }
     void rehash(int n) 
@@ -178,7 +178,7 @@ public:
         this -> currentSize = 0;  // Reset the size
         for(auto & thisList : oldLists)  // For each list in the old table
             for( auto & x : thisList)  // For each item in the list
-                insertpair = (hash(x), x);
+                insertpair = std::make_pair(hash(x), x);
                 insert(insertpair);  // Insert the item
     }
     
