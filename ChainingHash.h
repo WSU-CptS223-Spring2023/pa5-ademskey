@@ -10,6 +10,7 @@
 #include <vector>
 #include <list>
 #include <stdexcept>
+#include <math.h>
 
 // Custom project includes
 #include "Hash.h"
@@ -61,35 +62,23 @@ public:
 
     int count(const K& key) 
     {
-        auto & whichList = Lists[myhash(x)];  // Get the list
-        if(auto itr = find(begin(whichList), end(whichList), key ));     // Find the item
-            return iter.size();
+        auto & whichList = Lists[hash(key)];  // Get the list
+        if (auto itr = find(begin(whichList), end(whichList), key); itr != end(whichList))   // Find the item
+            return itr->size();
         else
             return 0;
     }
 
     void emplace(K key, V value) 
     {
-        pair = std::make_pair(key, value);  // Create the pair
-        auto & whichList = Lists[myhash(key)];  // Get the list 
-        if(find(begin(whichList), end(whichList), pair.first) != end(whichList)) // If the key is already in the list
-            return false;
-
         whichList.push_back(std::move(pair.first)); // Insert the key
-
         // Rehash
-        if( ++currentSize > theLists.size( ) )
+        if( ++currentSize > Lists.size( ) )
             rehash( );
-
-        return true;
     }
 
     void insert(const std::pair<K, V>& pair) 
     {
-        auto & whichList = Lists[ myhash( x ) ];   // Get the list     
-        if(find(begin(whichList), end( whichList ), pair.first) != end( whichList )) // If the key is already in the list
-            return false;
-
         whichList.push_back(std::move(pair.first)); // Insert the key
 
         // Rehash
@@ -101,8 +90,8 @@ public:
 
     void erase(const K& key) 
     {
-        auto & whichList = Lists[myhash(x)];  // Get the list
-        auto itr = find(begin(whichList), end(whichList), x );     // Find the item
+        auto & whichList = Lists[hash(key)];  // Get the list
+        auto itr = find(begin(whichList), end(whichList), key );     // Find the item (iter is an item in a list)
 
         if( itr == end( whichList ) )  // Not found
             return false;         
@@ -150,7 +139,7 @@ public:
         vector<list<V>> oldLists = this -> Lists;  // Create a copy of old table
 
         // Create new double-sized, empty table
-        theLists.resize(nextPrime(2 * theLists.size()));  // Resize the vector
+        Lists.resize(findNextPrime(2 * theLists.size()));  // Resize the vector
         for( auto & thisList : this -> Lists)  // Initialize the vector of Lists
             thisList.clear();
 
@@ -158,14 +147,14 @@ public:
         this -> currentSize = 0;  // Reset the size
         for(auto & thisList : oldLists)  // For each list in the old table
             for( auto & x : thisList)  // For each item in the list
-                insert( std::move( x ));
+                insert(x);  // Insert the item
     }
     void rehash(int n) 
     {
         vector<list<V>> oldLists = this -> Lists;  // Create a copy of old table
 
         // Create new double-sized, empty table
-        theLists.resize(n);  // Resize the vector to size passed in
+        this -> Lists.resize(n);  // Resize the vector to size passed in
         for( auto & thisList : this -> Lists)  // Initialize the vector of Lists
             thisList.clear();
 
@@ -173,7 +162,7 @@ public:
         this -> currentSize = 0;  // Reset the size
         for(auto & thisList : oldLists)  // For each list in the old table
             for( auto & x : thisList)  // For each item in the list
-                insert( std::move( x ));
+                insert(x);  // Insert the item
     }
 
 
