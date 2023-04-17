@@ -23,6 +23,10 @@ using std::pair;
 using std::cout;
 using std::endl;
 
+using std::begin;
+using std::end;
+using std::find;
+
 //
 // Separate chaining based hash table - derived from Hash
 //
@@ -71,21 +75,29 @@ public:
 
     void emplace(K key, V value) 
     {
-        whichList.push_back(std::move(pair.first)); // Insert the key
+        auto & whichList = theLists[ key ];      
+        if( find( begin( whichList ), end( whichList ), value ) != end( whichList ) )  // If the value is already in the list
+            return;
+
+        whichList.push_back( value);
+        whichList.push_back( value); // Insert the key
         // Rehash
-        if( ++currentSize > Lists.size( ) )
+        if( ++currentSize > Lists.size() )
             rehash( );
     }
 
     void insert(const std::pair<K, V>& pair) 
     {
-        whichList.push_back(std::move(pair.first)); // Insert the key
+        auto & whichList = theLists[ myhash( pair.second ) ];      
+        if( find( begin( whichList ), end( whichList ), pair.second ) != end( whichList ) )  // If the value is already in the list
+            return;
 
-        // Rehash
+        whichList.push_back( pair.first);
+
+            // Rehash
         if( ++currentSize > theLists.size( ) )
             rehash( );
 
-        return true;
     }
 
     void erase(const K& key) 
@@ -123,10 +135,11 @@ public:
 
     int bucket(const K& key) 
     {
-        if(hash(key) > 0 && hash(key) < Lists.size())
+        if(!Lists[hash(key)].empty())  // If the list at the index of the key is not empty
             return hash(key);  // Return the index of the list that contains the key
         else
             throw std::out_of_range("Key not in hash");
+        return -1;
     }
 
     float load_factor() 
@@ -137,6 +150,7 @@ public:
     void rehash() 
     {
         vector<list<V>> oldLists = this -> Lists;  // Create a copy of old table
+        std::pair<K, V> insertpair; //declare a pair for isnerting
 
         // Create new double-sized, empty table
         Lists.resize(findNextPrime(2 * theLists.size()));  // Resize the vector
@@ -147,11 +161,13 @@ public:
         this -> currentSize = 0;  // Reset the size
         for(auto & thisList : oldLists)  // For each list in the old table
             for( auto & x : thisList)  // For each item in the list
-                insert(x);  // Insert the item
+                insertpair = (hash(x), x);
+                insert(insertpair);  // Insert the item
     }
     void rehash(int n) 
     {
         vector<list<V>> oldLists = this -> Lists;  // Create a copy of old table
+        std::pair<K, V> insertpair; //declare a pair for isnerting
 
         // Create new double-sized, empty table
         this -> Lists.resize(n);  // Resize the vector to size passed in
@@ -162,10 +178,10 @@ public:
         this -> currentSize = 0;  // Reset the size
         for(auto & thisList : oldLists)  // For each list in the old table
             for( auto & x : thisList)  // For each item in the list
-                insert(x);  // Insert the item
+                insertpair = (hash(x), x);
+                insert(insertpair);  // Insert the item
     }
-
-
+    
 private:
 
     vector<list<V>> Lists;   // The array of Lists

@@ -87,7 +87,7 @@ public:
             curentPos++;  //move to next spot (linear hash)
         }
         // rehash
-        if( currentSize > array.size( ) / 2 )
+        if( currentSize > probVector.size( ) / 2 )
             rehash( );
 
         return true;
@@ -117,7 +117,7 @@ public:
             curentPos++;  //move to next spot (linear hash)
         }
         // rehash
-        if( currentSize > array.size( ) / 2 )
+        if( currentSize > probVector.size( ) / 2 )
             rehash( );
 
         return true;
@@ -127,7 +127,7 @@ public:
     {
         int currentPos = hash(key); //find index by hashing
         if(( probVector[currentPos].info == 1 ))  //if index is active then mark deleted
-            array[ currentPos ].first = DELETED;
+            probVector[ currentPos ].first = DELETED;
     }
 
     void clear() 
