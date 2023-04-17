@@ -35,6 +35,7 @@ int main()
 		outfile << "Chaining insertion time: " << total_time << std::endl; // write the total time to the file
 
 		// Search for the value with key 177 in ChainingHash table. Report the time required to find the value in each table by writing it to the “HashAnalysis.txt” file. 
+
 		start_time = omp_get_wtime(); // record start time
 		chainingHashTable[177]; // search for the value with key 177
 		end_time = omp_get_wtime(); // record end time
@@ -42,6 +43,7 @@ int main()
 		outfile << "Chaining search time: " << total_time << std::endl; // write the total time to the file
 
 		// Search for the value with key 2,000,000 in ChainingHash table. Report the time required to find the value in each table by writing it to the file.  
+
 		start_time = omp_get_wtime(); // record start time
 		chainingHashTable[2000000]; // search for the value with key 177
 		end_time = omp_get_wtime(); // record end time
@@ -49,26 +51,18 @@ int main()
 		outfile << "Chaining search time: " << total_time << std::endl; // write the total time to the file
 
 		// Remove the value with key 177 from ChainingHash table. Report the time required to remove the value with in each table by writing it to the file.  
+
 		start_time = omp_get_wtime(); // record start time
 		chainingHashTable.erase(177); // search for the value with key 177
 		end_time = omp_get_wtime(); // record end time
 		total_time = end_time - start_time; // calculate total time
 		outfile << "Chaining delete time: " << total_time << std::endl; // write the total time to the file
 
-		// Also, write to the file the final size, bucket count, and load factor of the hash for ChainingHash table. 
+		//write to the file the final size, bucket count, and load factor of the hash for ChainingHash table. 
+
 		outfile << "Table size: " << chainingHashTable.size() << std::endl; // write the size to the file
 		outfile << "Bucket count: " << chainingHashTable.bucket_count() << std::endl; // write the bucket count to the file
 		outfile << "Load factor: " << chainingHashTable.load_factor() << std::endl; // write the load factor to the file
-
-		/* Example output template:
-			Chaining insertion time: 
-			Chaining search time: 
-			Chaining failed search time: 
-			Chaining deletion time: 
-			Table size: 
-			Bucket count: 
-			Load factor: 
-		*/
 
 	/*Task I (b) - ProbingHash table (using Linear Probing) */
 
