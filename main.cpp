@@ -81,8 +81,8 @@ int main()
 			ProbingObject.insert(pair<int, int>(i, i));  // insert the pair (i, i) into the hash table.
 		}
 
-		double end_time = omp_get_wtime(); // record end time
-		double total_time = end_time - start_time; // calculate total time
+		end_time = omp_get_wtime(); // record end time
+		total_time = end_time - start_time; // calculate total time
 
 		// Report the total amount of time, in seconds, required to insert the values to ProbingHash table. Write the results to a file called “HashAnalysis.txt”. 
 
