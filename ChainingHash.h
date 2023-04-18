@@ -210,7 +210,7 @@ private:
     }
 
     int hash(const K& key) {
-        return 0;       
+        return key % Lists.size();       
     }
 };
 

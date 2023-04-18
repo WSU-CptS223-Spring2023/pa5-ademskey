@@ -52,7 +52,7 @@ public:
 
     V& operator[](const K& key) //returns value at key key
     {   //vector<pair<EntryState, Hash<K,V>>>
-        return std::pair{probVector[hash(key)].second}.second; //returns value of pair in second part of vector
+        return std::pair(probVector[hash(key)].second).second; //returns value of pair in second part of vector
     }
 
     int count(const K& key) 
@@ -199,7 +199,7 @@ private:
     }
 
     int hash(const K& key) {
-        return 0;       
+        return key % Lists.size();       ;       
     }
     
 };
