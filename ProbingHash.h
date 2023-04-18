@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <stdexcept>
+#include <math.h>
 
 #include "Hash.h"
 
@@ -32,7 +33,7 @@ public:
 
     ~ProbingHash() 
     {
-        this->clear();
+        this->probVector.clear();
     }
 
     bool empty() 
@@ -42,7 +43,7 @@ public:
 
     int size() 
     {
-        return this -> tablesize;
+        return this->tablesize;
     }
 
     V& at(const K& key) {
@@ -51,7 +52,7 @@ public:
 
     V& operator[](const K& key) //returns value at key key
     {   //vector<pair<EntryState, Hash<K,V>>>
-        return probVector[hash(key)].second.second; //returns value of pair in second part of vector
+        return std::pair{probVector[hash(key)].second}.second; //returns value of pair in second part of vector
     }
 
     int count(const K& key) 
@@ -65,72 +66,60 @@ public:
     void emplace(K key, V value)
     {
         bool success = false; //success variable for probing
-        std::pair<K, V> pair(key, value); //turn passed in variabls into pair
+        Hash newHash = {key, value}; //turn passed in variabls into pair
 
-        while(success == false) //while a insertion has not been made
+        while(currentPos != probVector.size()) //while a insertion has not been made
         { 
             int currentPos = hash( pair.first ); //hash key to find position
 
-            if(probVector[currentPos].first == 0){  // if empty index found
+            if(probVector[currentPos].first == VALID){  // if empty index found
                 success = true;
                 ++tablesize; //incrament the recorded size of vector
-            }
-            else if( probVector[ currentPos ].second != 2 ){  // if deleted index found
-                ++tablesize; //incrament the recorded size of vector
-                success = true;
-            }
-
-            else if( success = true) //if empty found move into spot
-            {            
-                probVector[ currentPos ].second = pair;  // copye info into array
-                probVector[ currentPos ].first = 1;  // Mark as active
             }
             currentPos++;  //move to next spot (linear hash)
         }
+        if( success == true) //if empty found move into spot
+        {            
+            probVector[ currentPos ].second = newHash;  // copye info into array
+            probVector[ currentPos ].first = VALID;  // Mark as active
+        }
         // rehash
-        if( tablesize > probVector.size( ) / 2 )
+        if( load_factor() > 0.75 )  // Rehash when the table is 75% full
             rehash( );
     }
 
     void insert(const std::pair<K, V>& pair) 
     {
-        bool success = false; //success variable for probing
+        int currentPos = hash( pair.second ); //hash key to find position
 
-        while(success == false) //while a insertion has not been made
+        while(currentPos != probVector.size()) //while a insertion has not been made
         { 
-            int currentPos = hash( pair.first ); //hash key to find position
-
-            if(probVector[currentPos].first == 0){  // if empty index found
-                success = true;
+            if(probVector[currentPos].first == VALID){  // if empty index found
                 ++tablesize; //incrament the recorded size of vector
+                break;
             }
-
-            else if( probVector[ currentPos ].first != 2 ){  // if deleted index found
-                ++tablesize; //incrament the recorded size of vector
-                success = true;
-            }
-
-            else if(success == true){ //if empty found move into spot      
-                probVector[ currentPos ].second = pair;  // copye info into array
-                probVector[ currentPos ].first = 1;  // Mark as active
             currentPos++;  //move to next spot (linear hash)
-            }
+        }
+
+        if(success == true){ //if empty found move into spot      
+            probVector[ currentPos ].second = (Hash){pair.first, pair.second};  // copy info into array
+            probVector[ currentPos ].first = VALID;  // Mark as active
         }
         // rehash
-        if( tablesize > probVector.size( ) / 2 )
+        if( load_factor() > 0.75 )  // Rehash when the table is 75% full
             rehash( );
     }
 
     void erase(const K& key) 
     {
         int currentPos = hash(key); //find index by hashing
-        if(( probVector[currentPos].info == 1 ))  //if index is active then mark deleted
+        if(( probVector[currentPos].first == VALID ))  //if index is active then mark deleted
             probVector[ currentPos ].first = DELETED;
     }
 
     void clear() 
     {
-        delete probVector;
+        probVector.clear();
     }
 
     int bucket_count() 
@@ -161,7 +150,23 @@ public:
 
     void rehash() 
     {
+        vector<pair<EntryState, Hash<K,V>>> oldProbVector = probVector;
 
+        // Now we want to create a vector that is the next prime after doubling the current vector size.
+        probVector.resize(findNextPrime(2 * oldProbVector.size()));
+        
+        for (auto & entry : oldProbVector)
+        {
+            entry.first = EMPTY;  // Make every entry EMPTY
+        }
+
+        for (auto & entry : oldProbVector)
+        {
+            if( entry.first == ACITVE )
+            {
+                insert(std::mov(std::pair{entry.second}));  // Insert every entry from the old array
+            }
+        }
     }
 
     void rehash(int n) 

@@ -1,6 +1,7 @@
 {
     "C_Cpp.errorSquiggles": "enabled",
     "files.associations": {
-        "tuple": "cpp"
+        "tuple": "cpp",
+        "vector": "cpp"
     }
 }

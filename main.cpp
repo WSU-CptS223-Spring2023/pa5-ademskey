@@ -67,8 +67,10 @@ int main()
 	/*Task I (b) - ProbingHash table (using Linear Probing) */
 
 		//  create an object of type ProbingHash 
+		ProbingHash<int, int> ProbingObject;
 
 		// In order, insert values with keys 1 – 1,000,000. For simplicity, the key and value stored are the same.
+
 
 		// Report the total amount of time, in seconds, required to insert the values to ProbingHash table. Write the results to a file called “HashAnalysis.txt”. 
 
