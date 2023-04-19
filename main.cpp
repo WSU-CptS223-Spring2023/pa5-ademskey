@@ -134,16 +134,54 @@ int main()
 		Inside the parallel region make sure that the value for the iteration number of the loop is shared among all threads. 
 		For simplicity, the key and value stored are the same.
         */
+
+	   	start_time = omp_get_wtime(); // record start time
+
+	   	#pragma omp parallel for shared(ParallelProbingObject)
+
+		for (int i = 1; i <= 1000000; i++)   //go in a loop through 1 mil
+		{
+			ParallelProbingObject.insert(pair<int, int>(i, i));  // insert the pair (i, i) into the hash table.
+		}
+
+		end_time = omp_get_wtime(); // record end time
+		total_time = end_time - start_time; // calculate total time
+
 		// Report the total amount of time, in seconds, required to insert the values to ParallelProbingHash table. Write the results to a file called “HashAnalysis.txt”. 
+
+		outfile << "Parallel Probing 1 thread insertion time: " << total_time << std::endl; // write the total time to the file
 
 		// Search for the value with key 177 in ParallelProbingHash table. Report the time required to find the value in each table by writing it to the “HashAnalysis.txt” file. 
 		
+		start_time = omp_get_wtime(); // record start time
+		ParallelProbingObject[177]; // search for the value with key 177
+		end_time = omp_get_wtime(); // record end time
+		total_time = end_time - start_time; // calculate total time
+
+		outfile << "Parallel Probing 1 thread search time: " << total_time << std::endl; // write the total time to the file
+
 		// Search for the value with key 2,000,000 in ParallelProbingHash table. Report the time required to find the value in each table by writing it to the file.  
 
+		start_time = omp_get_wtime(); // record start time
+		ParallelProbingObject[2000000]; // search for the value with key 177
+		end_time = omp_get_wtime(); // record end time
+		total_time = end_time - start_time; // calculate total time
+
+		outfile << "Parallel Probing 1 thread search time: " << total_time << std::endl; // write the total time to the file
 		// Remove the value with key 177 from ParallelProbingHash table. Report the time required to remove the value with in each table by writing it to the file.  
+
+		start_time = omp_get_wtime(); // record start time
+		ParallelProbingObject.erase(177); // search for the value with key 177
+		end_time = omp_get_wtime(); // record end time
+		total_time = end_time - start_time; // calculate total time
+
+		outfile << "Parallel Probing 1 thread delete time: " << total_time << std::endl; // write the total time to the file
 
 		// Also, write to the file the final size, bucket count, and load factor of the hash for ParallelProbingHash table. 
 
+		outfile << "Table size: " << ParallelProbingObject.size() << std::endl; // write the size to the file
+		outfile << "Bucket count: " << ParallelProbingObject.bucket_count() << std::endl; // write the bucket count to the file
+		outfile << "Load factor: " << ParallelProbingObject.load_factor() << std::endl; // write the load factor to the file
 
 
 	// (b) Using multiple threads:  
@@ -158,25 +196,56 @@ int main()
 		Inside the parallel region make sure that the value for the iteration number of the loop is shared among all threads. 
 		For simplicity, the key and value stored are the same.
         */
+
+	   	start_time = omp_get_wtime(); // record start time
+
+	   	#pragma omp parallel for shared(ParallelProbingObject)
+
+		for (int i = 1; i <= 1000000; i++)   //go in a loop through 1 mil
+		{
+			ParallelProbingObject2.insert(pair<int, int>(i, i));  // insert the pair (i, i) into the hash table.
+		}
+
+		end_time = omp_get_wtime(); // record end time
+		total_time = end_time - start_time; // calculate total time
+
 		// Report the total amount of time, in seconds, required to insert the values to ParallelProbingHash table. Write the results to a file called “HashAnalysis.txt”. 
+
+		outfile << "Parallel Probing 4 thread insertion time: " << total_time << std::endl; // write the total time to the file
 
 		// Search for the value with key 177 in ParallelProbingHash table. Report the time required to find the value in each table by writing it to the “HashAnalysis.txt” file. 
 		
+		start_time = omp_get_wtime(); // record start time
+		ParallelProbingObject2[177]; // search for the value with key 177
+		end_time = omp_get_wtime(); // record end time
+		total_time = end_time - start_time; // calculate total time
+
+		outfile << "Parallel Probing 4 thread search time: " << total_time << std::endl; // write the total time to the file
+
 		// Search for the value with key 2,000,000 in ParallelProbingHash table. Report the time required to find the value in each table by writing it to the file.  
+
+		start_time = omp_get_wtime(); // record start time
+		ParallelProbingObject2[2000000]; // search for the value with key 177
+		end_time = omp_get_wtime(); // record end time
+		total_time = end_time - start_time; // calculate total time
+
+		outfile << "Parallel Probing 4 thread search time: " << total_time << std::endl; // write the total time to the file
 
 		// Remove the value with key 177 from ParallelProbingHash table. Report the time required to remove the value with in each table by writing it to the file.  
 
+		start_time = omp_get_wtime(); // record start time
+		ParallelProbingObject2.erase(177); // search for the value with key 177
+		end_time = omp_get_wtime(); // record end time
+		total_time = end_time - start_time; // calculate total time
+
+		outfile << "Parallel Probing 4 thread delete time: " << total_time << std::endl; // write the total time to the file
+
 		// Also, write to the file the final size, bucket count, and load factor of the hash for ParallelProbingHash table. 
 
-		/* Example output template:
-			Parallel Probing insertion time: 
-			Parallel Probing search time: 
-			Parallel Probing failed search time: 
-			Parallel Probing deletion time: 
-			Table size: 
-			Bucket count: 
-			Load factor: 
-		*/
+		outfile << "Table size: " << ParallelProbingObject2.size() << std::endl; // write the size to the file
+		outfile << "Bucket count: " << ParallelProbingObject2.bucket_count() << std::endl; // write the bucket count to the file
+		outfile << "Load factor: " << ParallelProbingObject2.load_factor() << std::endl; // write the load factor to the file
+		
 	outfile.close(); // close the file
 	return 0;
 }
