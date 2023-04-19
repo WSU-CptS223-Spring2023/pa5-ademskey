@@ -81,8 +81,8 @@ public:
         if( find( begin( whichList ), end( whichList ), value ) != end( whichList ) )  // If the value is already in the list
             return;
 
-        whichList.push_back( value);
         whichList.push_back( value); // Insert the key
+        ++currentSize;  // Increment the size
         // Rehash
         if( ++currentSize > Lists.size() )
             rehash( );
@@ -90,15 +90,17 @@ public:
 
     void insert(const std::pair<K, V>& pair) 
     {
-        auto & whichList = Lists[ hash( pair.second ) ];      
+        auto & whichList = Lists[ hash( pair.first ) ];      
         if( find( begin( whichList ), end( whichList ), pair.second ) != end( whichList ) )  // If the value is already in the list
             return;
 
-        whichList.push_back( pair.first);
+        whichList.push_back( pair.second);  
+        this -> currentSize++;  // Increment the size
 
-            // Rehash
-        if( ++currentSize > Lists.size( ) )
+        // Rehash
+        if(load_factor() >= 0.75){
             rehash( );
+        }
 
     }
 
@@ -122,10 +124,8 @@ public:
 
     int bucket_count() //size of hash vector
     {
-        int count = 0;
-        for (const auto& bucket : Lists)
-            count += bucket.size();
-        return count;
+        int size = Lists.size();
+        return Lists.size();
     }
 
     int bucket_size(int n) 
@@ -144,6 +144,7 @@ public:
 
     float load_factor() 
     {
+        float size = (float)currentSize / this -> bucket_count();
         return (float)currentSize / this -> bucket_count();
     }
 

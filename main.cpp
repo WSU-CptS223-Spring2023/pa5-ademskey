@@ -18,7 +18,7 @@ int main()
 	/*Task I (a)- ChainingHash table*/
 
 		//  create an object of type ChainingHash 
-		ChainingHash<int, int> chainingHashTable(1000000);
+		ChainingHash<int, int> chainingHashTable(101);
 
 		// In order, insert values with keys 1 – 1,000,000. For simplicity, the key and value stored are the same. 
 
