@@ -199,11 +199,10 @@ int main()
 
 	   	start_time = omp_get_wtime(); // record start time
 
-	   	#pragma omp parallel for shared(ParallelProbingObject)
-
+	   	#pragma omp parallel for
 		for (int i = 1; i <= 1000000; i++)   //go in a loop through 1 mil
-		{
-			ParallelProbingObject2.insert(pair<int, int>(i, i));  // insert the pair (i, i) into the hash table.
+		{	
+				ParallelProbingObject2.insert(pair<int, int>(i, i));
 		}
 
 		end_time = omp_get_wtime(); // record end time
