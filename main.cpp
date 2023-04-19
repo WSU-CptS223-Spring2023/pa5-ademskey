@@ -1,6 +1,28 @@
-// Fernando Medina
-// Testing pushing and committing to Adam's repo
 
+//Disclaimer: Code referenced from texbook for designs of certain functions in the hash tables
+//Project developed in collaberation with Fernando Medina and Adam Caudle
+
+/*
+(6 pts) How did the serial implementations for the ChainingHash and ProbingHash
+compare to each other? Did you expect the time results obtained? Explain.
+	The serial implementations for the ChainingHash and ProbingHash were very similar with slightly
+	different accessing speeds. The ChainingHash was slightly faster than the ProbingHash in this respect. 
+	 The ProbingHash has to check the state of each pair to see if it is valid or not, 
+	 while the ChainingHash doestn. This means the insertion as well as acccessing are slightly slower on the 
+	 probing hash when brought to this scale.
+
+2. (6 pts) Compare the parallel and serial implementations for the ProbingHash. Did the
+parallel implementations provide you with the expected speedup? Explain.
+	The parallel implementation of the ProbingHash were much faster than the serial implementation. 
+	We expected this because the parallel implementation was able to split the work between the 
+	threads and complete the work much faster than the serial implementation. 
+
+3. (6 pts) What could you change in your parallel implementations to improve performance and
+speedup? Explain. 
+	I could improve my parrallel implementations to improve better performance and speedup by
+	making my funciton threadsafe so I would not have to take extra measures such as locks or critical 
+	sections. This could improve times in the parralel sections of my code.
+*/
 
 //Disclaimer: Code referenced from texbook for designs of certain functions in the hash tables
 //Project developed in collaberation with Fernando Medina and Adam Caudle
@@ -138,11 +160,10 @@ int main()
 	   	start_time = omp_get_wtime(); // record start time
 
 	   	#pragma omp parallel for shared(ParallelProbingObject)
-
-		for (int i = 1; i <= 1000000; i++)   //go in a loop through 1 mil
-		{
-			ParallelProbingObject.insert(pair<int, int>(i, i));  // insert the pair (i, i) into the hash table.
-		}
+			for (int i = 1; i <= 1000000; i++)   //go in a loop through 1 mil
+			{
+				ParallelProbingObject.insert(pair<int, int>(i, i));  // insert the pair (i, i) into the hash table.
+			}
 
 		end_time = omp_get_wtime(); // record end time
 		total_time = end_time - start_time; // calculate total time
@@ -199,11 +220,11 @@ int main()
 
 	   	start_time = omp_get_wtime(); // record start time
 
-	   	#pragma omp parallel for
-		for (int i = 1; i <= 1000000; i++)   //go in a loop through 1 mil
-		{	
-				ParallelProbingObject2.insert(pair<int, int>(i, i));
-		}
+		#pragma omp parallel for shared(ParallelProbingObject2)
+			for (int i = 1; i <= 1000000; i++)   //go in a loop through 1 mil
+			{
+				ParallelProbingObject2.insert(pair<int, int>(i, i));  // insert the pair (i, i) into the hash table.
+			}
 
 		end_time = omp_get_wtime(); // record end time
 		total_time = end_time - start_time; // calculate total time

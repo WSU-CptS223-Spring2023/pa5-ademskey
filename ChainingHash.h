@@ -124,7 +124,6 @@ public:
 
     int bucket_count() //size of hash vector
     {
-        int size = Lists.size();
         return Lists.size();
     }
 
@@ -144,7 +143,6 @@ public:
 
     float load_factor() 
     {
-        float size = (float)currentSize / this -> bucket_count();
         return (float)currentSize / this -> bucket_count();
     }
 

@@ -191,6 +191,9 @@ private:
         while (probVector[emptyLocation].first != EMPTY)
         {
             emptyLocation++;
+
+            if(emptyLocation >= probVector.size())
+                emptyLocation = 0;
         }
 
         return emptyLocation;
