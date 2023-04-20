@@ -131,11 +131,6 @@ public:
             probVector[ currentPos ].first = VALID;  // Mark as active
 
             tablesize++;
-            // rehash
-            if( load_factor() >= 0.75 )  // Rehash when the table is 75% full
-            {
-                rehash( );
-            }
         }
     }
 
