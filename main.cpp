@@ -70,11 +70,23 @@ int main()
 
 		// Search for the value with key 2,000,000 in ChainingHash table. Report the time required to find the value in each table by writing it to the file.  
 
+		int insertval = 2000000;
+		
 		start_time = omp_get_wtime(); // record start time
+
 		chainingHashTable[2000000]; // search for the value with key 177
 		end_time = omp_get_wtime(); // record end time
 		total_time = end_time - start_time; // calculate total time
-		outfile << "Chaining search time: " << total_time << std::endl; // write the total time to the file
+
+		if(insertval > chainingHashTable.size())
+		{
+			outfile << "chaining search item not in hash" << std::endl; // write the total time to the file
+		}
+		else
+		{
+			outfile << "chaining search time: " << total_time << std::endl; // write the total time to the file
+		}
+		// Remov
 
 		// Remove the value with key 177 from ChainingHash table. Report the time required to remove the value with in each table by writing it to the file.  
 
@@ -120,11 +132,23 @@ int main()
 
 		// Search for the value with key 2,000,000 in ProbingHash table. Report the time required to find the value in each table by writing it to the file.  
 
+		insertval = 2000000;
+		
 		start_time = omp_get_wtime(); // record start time
+
 		ProbingObject[2000000]; // search for the value with key 177
 		end_time = omp_get_wtime(); // record end time
 		total_time = end_time - start_time; // calculate total time
-		outfile << "Probing search time: " << total_time << std::endl; // write the total time to the file
+
+		if(insertval > ProbingObject.size())
+		{
+			outfile << "Probing thread search item not in hash" << std::endl; // write the total time to the file
+		}
+		else
+		{
+			outfile << "Probing thread search time: " << total_time << std::endl; // write the total time to the file
+		}
+		// Remov
 
 		// Remove the value with key 177 from ProbingHash table. Report the time required to remove the value with in each table by writing it to the file.  
 
@@ -183,10 +207,23 @@ int main()
 
 		// Search for the value with key 2,000,000 in ParallelProbingHash table. Report the time required to find the value in each table by writing it to the file.  
 
+		insertval = 2000000;
+		
 		start_time = omp_get_wtime(); // record start time
+
 		ParallelProbingObject[2000000]; // search for the value with key 177
 		end_time = omp_get_wtime(); // record end time
 		total_time = end_time - start_time; // calculate total time
+
+		if(insertval > ParallelProbingObject.size())
+		{
+			outfile << "Parallel Probing thread search item not in hash" << std::endl; // write the total time to the file
+		}
+		else
+		{
+			outfile << "Parallel Probing thread search time: " << total_time << std::endl; // write the total time to the file
+		}
+		// Remov
 
 		outfile << "Parallel Probing 1 thread search time: " << total_time << std::endl; // write the total time to the file
 		// Remove the value with key 177 from ParallelProbingHash table. Report the time required to remove the value with in each table by writing it to the file.  
@@ -208,6 +245,9 @@ int main()
 		//  create an object of type ParallelProbingHash 
 
 		ProbingHash<int, int> ParallelProbingObject2;
+		//300,000
+		ParallelProbingObject2.rehash(400000);
+
 		// i.	Change the number of threads to match the number of cores on your system 
 
 		omp_set_num_threads(4);
@@ -225,12 +265,9 @@ int main()
 		#pragma omp parallel for shared(ParallelProbingObject2)
 		for (int i = 1; i <= 1000000; i++) 
 		{
-  			//omp_set_lock(&lock);
-   			ParallelProbingObject2.insert(pair<int, int>(i, i));
-   			//omp_unset_lock(&lock);
+				ParallelProbingObject2.insert(pair<int, int>(i, i));
 		}
 
-		//omp_destroy_lock(&lock);
 
 		end_time = omp_get_wtime(); // record end time
 		total_time = end_time - start_time; // calculate total time
@@ -250,13 +287,22 @@ int main()
 
 		// Search for the value with key 2,000,000 in ParallelProbingHash table. Report the time required to find the value in each table by writing it to the file.  
 
+		insertval = 2000000;
+		
 		start_time = omp_get_wtime(); // record start time
+
 		ParallelProbingObject2[2000000]; // search for the value with key 177
 		end_time = omp_get_wtime(); // record end time
 		total_time = end_time - start_time; // calculate total time
 
-		outfile << "Parallel Probing 4 thread search time: " << total_time << std::endl; // write the total time to the file
-
+		if(insertval > ParallelProbingObject2.size())
+		{
+			outfile << "Parallel Probing 4 thread search item not in hash" << std::endl; // write the total time to the file
+		}
+		else
+		{
+			outfile << "Parallel Probing 4 thread search time: " << total_time << std::endl; // write the total time to the file
+		}
 		// Remove the value with key 177 from ParallelProbingHash table. Report the time required to remove the value with in each table by writing it to the file.  
 
 		start_time = omp_get_wtime(); // record start time
