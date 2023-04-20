@@ -4,7 +4,7 @@
 #include <vector>
 #include <stdexcept>
 #include <math.h>
-
+#include <omp.h>
 #include "Hash.h"
 
 using std::vector;
@@ -26,9 +26,10 @@ private:
     vector<pair<EntryState, pair<K,V>>> probVector;
 
 public:
-    ProbingHash(int n = 101) 
+    ProbingHash(int n = 5) 
     {
         probVector.resize(n);
+        this -> tablesize = probVector.size();
     }
 
     ~ProbingHash() 
@@ -82,16 +83,28 @@ public:
 
     void insert(const std::pair<K, V>& pair) 
     {
+
         int currentPos = hash( pair.second ); //hash key to find position
       
-        probVector[ currentPos ].second.first = pair.first;  // copy info into array
-        probVector[ currentPos ].second.second = pair.second;
-        probVector[ currentPos ].first = VALID;  // Mark as active
+        #pragma omp critical
+        {
+            while (probVector[currentPos].first != EMPTY)
+            {
+                currentPos++;
+                if(currentPos >= probVector.size()){
+                    currentPos = 0;
+                }
+            }
+        
+            probVector[ currentPos ].second.first = pair.first;  // copy info into array
+            probVector[ currentPos ].second.second = pair.second;
+            probVector[ currentPos ].first = VALID;  // Mark as active
 
-        tablesize++;
-        // rehash
-        if( load_factor() > 0.75 )  // Rehash when the table is 75% full
+            tablesize++;
+            // rehash
+            if( load_factor() > 0.75 )  // Rehash when the table is 75% full
             rehash( );
+        }
     }
 
     void erase(const K& key) 
@@ -138,8 +151,30 @@ public:
     {
         vector<pair<EntryState, pair<K,V>>> oldProbVector = probVector;
 
+
         // Now we want to create a vector that is the next prime after doubling the current vector size.
-        probVector.resize(findNextPrime(2 * oldProbVector.size()));
+            probVector.resize(findNextPrime(2 * oldProbVector.size()));
+        
+            for (auto & entry : oldProbVector)
+            {
+                entry.first = EMPTY;  // Make every entry EMPTY
+            }
+
+            for (auto & entry : oldProbVector)
+            {
+                if( entry.first == VALID )
+                {
+                    insert(entry.second);  // Insert every entry from the old array
+                }
+            }
+    }
+
+    void rehash(int n) 
+    {
+        vector<pair<EntryState, pair<K,V>>> oldProbVector = probVector;
+
+        // Now we want to create a vector that is the next prime after doubling the current vector size.
+        probVector.resize(n);
         
         for (auto & entry : oldProbVector)
         {
@@ -153,11 +188,6 @@ public:
                 insert(entry.second);  // Insert every entry from the old array
             }
         }
-    }
-
-    void rehash(int n) 
-    {
-
     }
 
 private:
@@ -187,18 +217,13 @@ private:
     int hash(const K& key) {
 
         int emptyLocation =  0;
-        emptyLocation = key % probVector.size();
-        while (probVector[emptyLocation].first != EMPTY)
+
+        #pragma omp critical
         {
-            emptyLocation++;
-
-            if(emptyLocation >= probVector.size())
-                emptyLocation = 0;
+            emptyLocation = key % probVector.size();
         }
-
         return emptyLocation;
     }
-    
 };
 
 #endif //__PROBING_HASH_H

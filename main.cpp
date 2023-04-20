@@ -218,13 +218,20 @@ int main()
 		For simplicity, the key and value stored are the same.
         */
 
-	   	start_time = omp_get_wtime(); // record start time
+		start_time = omp_get_wtime(); // record start time
+
+		omp_lock_t lock;
+		omp_init_lock(&lock);
 
 		#pragma omp parallel for shared(ParallelProbingObject2)
-			for (int i = 1; i <= 1000000; i++)   //go in a loop through 1 mil
-			{
-				ParallelProbingObject2.insert(pair<int, int>(i, i));  // insert the pair (i, i) into the hash table.
-			}
+		for (int i = 1; i <= 1000000; i++) 
+		{
+  			omp_set_lock(&lock);
+   			ParallelProbingObject2.insert(pair<int, int>(i, i));
+   			omp_unset_lock(&lock);
+		}
+
+		omp_destroy_lock(&lock);
 
 		end_time = omp_get_wtime(); // record end time
 		total_time = end_time - start_time; // calculate total time
