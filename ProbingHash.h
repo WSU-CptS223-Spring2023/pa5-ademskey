@@ -39,6 +39,7 @@ public:
     ~ProbingHash() 
     {
         this->probVector.clear();
+        // vector destructor will delete all elements
     }
 
     bool empty() 
@@ -76,17 +77,38 @@ public:
     {
         bool success = false; //success variable for probing
         pair<K, V> newHash = {key, value}; //turn passed in variabls into pair
-        int hashPos = hash( key ); //hash key to find position
+        int currentPos = hash( key ); //hash key to find position
+      
+        #pragma omp critical
+        {
+            while (probVector[currentPos].first != EMPTY)
+            {
+                currentPos++;
+                if(currentPos >= probVector.size()){
+                    currentPos = 0;
+                }
+            }
+        
+            probVector[ currentPos ].second.first = key;  // copy info into array
+            probVector[ currentPos ].second.second = value;
+            probVector[ currentPos ].first = VALID;  // Mark as active
 
-        // update values to emplace K and V
-        probVector[ hashPos ].second = newHash;  // copy info into array
-        probVector[ hashPos ].first = VALID;  // Mark as active
+            tablesize++;
+            // rehash
+            if( load_factor() >= 0.75 )  // Rehash when the table is 75% full
+            {
+                rehash( );
+            }
+        }
+    }
 
-        tablesize++;
-
-        // rehash
-        if( load_factor() >= 0.75 )  // Rehash when the table is 75% full
-            rehash( );
+    void erase(const K& key) 
+    {
+        int currentPos = hash(key); //find index by hashing
+        if(( probVector[currentPos].first == VALID ))  //if index is active then mark deleted
+        {    
+            probVector[ currentPos ].first = DELETED;
+        }
     }
 
     void insert(const std::pair<K, V>& input) 
@@ -114,15 +136,6 @@ public:
             {
                 rehash( );
             }
-        }
-    }
-
-    void erase(const K& key) 
-    {
-        int currentPos = hash(key); //find index by hashing
-        if(( probVector[currentPos].first == VALID ))  //if index is active then mark deleted
-        {    
-            probVector[ currentPos ].first = DELETED;
         }
     }
 
