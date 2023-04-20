@@ -26,10 +26,10 @@ private:
     vector<pair<EntryState, pair<K,V>>> probVector;
 
 public:
-    ProbingHash(int n = 5) 
+    ProbingHash(int n = 101)
     {
         probVector.resize(n);
-        this -> tablesize = probVector.size();
+        this -> tablesize = 0;
         for (int i = 0; i < n; i++)
         {
             this->probVector[i].first = EMPTY;
@@ -81,14 +81,14 @@ public:
         tablesize++;
 
         // rehash
-        if( load_factor() > 0.75 )  // Rehash when the table is 75% full
+        if( load_factor() >= 0.75 )  // Rehash when the table is 75% full
             rehash( );
     }
 
-    void insert(const std::pair<K, V>& pair) 
+    void insert(const std::pair<K, V>& input) 
     {
 
-        int currentPos = hash( pair.second ); //hash key to find position
+        int currentPos = hash( input.first ); //hash key to find position
       
         #pragma omp critical
         {
@@ -100,14 +100,21 @@ public:
                 }
             }
         
-            probVector[ currentPos ].second.first = pair.first;  // copy info into array
-            probVector[ currentPos ].second.second = pair.second;
+            probVector[ currentPos ].second.first = input.first;  // copy info into array
+            probVector[ currentPos ].second.second = input.second;
             probVector[ currentPos ].first = VALID;  // Mark as active
 
             tablesize++;
             // rehash
-            if( load_factor() > 0.75 )  // Rehash when the table is 75% full
-            rehash( );
+            omp_lock_t lock;
+		    omp_init_lock(&lock);
+            if( load_factor() >= 0.75 )  // Rehash when the table is 75% full
+            {
+                omp_set_lock(&lock);
+                rehash( );
+            }
+            omp_unset_lock(&lock);
+            omp_destroy_lock(&lock);
         }
     }
 
@@ -132,7 +139,7 @@ public:
 
     int bucket_size(int n) 
     {
-        if( probVector[n].first == 1 )
+        if( probVector[n].first == VALID )
             return 1;
         else
             return 0;
@@ -140,7 +147,7 @@ public:
 
     int bucket(const K& key) 
     {
-        if( probVector[ hash(key) ].first == 1 ) //if index is active then return index
+        if( probVector[ hash(key) ].first == VALID ) //if index is active then return index
             return hash(key);
         else
             throw std::out_of_range("Key not in hash");  //else throw error
@@ -153,24 +160,44 @@ public:
 
     void rehash() 
     {
+        // omp_lock_t lock;
+		// omp_init_lock(&lock);
         vector<pair<EntryState, pair<K,V>>> oldProbVector = probVector;
-
+        probVector.clear();
 
         // Now we want to create a vector that is the next prime after doubling the current vector size.
-            probVector.resize(findNextPrime(2 * oldProbVector.size()));
+        probVector.resize(findNextPrime(2 * oldProbVector.size()));
         
-            for (auto & entry : oldProbVector)
-            {
-                entry.first = EMPTY;  // Make every entry EMPTY
-            }
-
-            for (auto & entry : oldProbVector)
-            {
-                if( entry.first == VALID )
+        #pragma omp parallel for private(probVector)
+            for (auto & entry : oldProbVector)  // Go through all of the old entries and place them in a good spot
+            {  
+                //omp_set_lock(&lock);
+                if( entry.first == DELETED )    // If there was an entry that was deleted then we need to bring down the tablesize
                 {
-                    insert(entry.second);  // Insert every entry from the old array
+                    this->tablesize--;
                 }
+
+                if( entry.first == VALID )  // Insert every entry from the old array
+                {
+                    int currentPos = entry.second.second;
+                    currentPos = currentPos % probVector.size();
+                    while (probVector[currentPos].first != EMPTY)
+                    {
+                        currentPos++;
+                        if(currentPos >= probVector.size()){
+                            currentPos = 0;
+                        }
+                    }
+                    
+                    probVector[currentPos].first = VALID;
+                    probVector[currentPos].second.first = entry.second.first;
+                    probVector[currentPos].second.second = entry.second.second;
+                }
+                //omp_unset_lock(&lock);        
             }
+        
+        //omp_destroy_lock(&lock);
+
     }
 
     void rehash(int n) 
@@ -192,6 +219,7 @@ public:
                 insert(entry.second);  // Insert every entry from the old array
             }
         }
+        this->tablesize = probVector.size();
     }
 
 private:
@@ -222,10 +250,10 @@ private:
 
         int emptyLocation =  0;
 
-        #pragma omp critical
-        {
-            emptyLocation = key % probVector.size();
-        }
+        //#pragma omp critical
+        //{
+        emptyLocation = key % probVector.size();
+        //}
         return emptyLocation;
     }
 };

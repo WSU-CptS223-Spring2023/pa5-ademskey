@@ -202,8 +202,7 @@ int main()
 
 		outfile << "Table size: " << ParallelProbingObject.size() << std::endl; // write the size to the file
 		outfile << "Bucket count: " << ParallelProbingObject.bucket_count() << std::endl; // write the bucket count to the file
-		outfile << "Load factor: " << ParallelProbingObject.load_factor() << std::endl; // write the load factor to the file
-
+		outfile << "Load factor: " << ParallelProbingObject.load_factor() << std::endl;
 
 	// (b) Using multiple threads:  
 		//  create an object of type ParallelProbingHash 
@@ -211,7 +210,7 @@ int main()
 		ProbingHash<int, int> ParallelProbingObject2;
 		// i.	Change the number of threads to match the number of cores on your system 
 
-		omp_set_num_threads(1);
+		omp_set_num_threads(4);
 
 		/* In an OpenMP parallel region (#pragma omp parallel), in order, insert values with keys 1 – 1,000,000. 
 		Inside the parallel region make sure that the value for the iteration number of the loop is shared among all threads. 
@@ -220,18 +219,18 @@ int main()
 
 		start_time = omp_get_wtime(); // record start time
 
-		omp_lock_t lock;
-		omp_init_lock(&lock);
+		//omp_lock_t lock;
+		//omp_init_lock(&lock);
 
 		#pragma omp parallel for shared(ParallelProbingObject2)
 		for (int i = 1; i <= 1000000; i++) 
 		{
-  			omp_set_lock(&lock);
+  			//omp_set_lock(&lock);
    			ParallelProbingObject2.insert(pair<int, int>(i, i));
-   			omp_unset_lock(&lock);
+   			//omp_unset_lock(&lock);
 		}
 
-		omp_destroy_lock(&lock);
+		//omp_destroy_lock(&lock);
 
 		end_time = omp_get_wtime(); // record end time
 		total_time = end_time - start_time; // calculate total time
