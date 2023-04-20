@@ -49,6 +49,7 @@ int main()
 		for (int i = 1; i <= 1000000; i++)   //go in a loop through 1 mil
 		{
 			chainingHashTable.insert(pair<int, int>(i, i));  // insert the pair (i, i) into the hash table.
+			
 		}
 
 		double end_time = omp_get_wtime(); // record end time
@@ -113,6 +114,12 @@ int main()
 		for (int i = 1; i <= 1000000; i++)   //go in a loop through 1 mil
 		{
 			ProbingObject.insert(pair<int, int>(i, i));  // insert the pair (i, i) into the hash table.
+
+			    // rehash
+            if( ProbingObject.load_factor() >= 0.75 )  // Rehash when the table is 75% full
+            {
+                ProbingObject.rehash( );
+            }
 		}
 
 		end_time = omp_get_wtime(); // record end time
@@ -187,6 +194,12 @@ int main()
 			for (int i = 1; i <= 1000000; i++)   //go in a loop through 1 mil
 			{
 				ParallelProbingObject.insert(pair<int, int>(i, i));  // insert the pair (i, i) into the hash table.
+
+							    // rehash
+            	if( ParallelProbingObject.load_factor() >= 0.75 )  // Rehash when the table is 75% full
+            	{
+                	ParallelProbingObject.rehash( );
+            	}
 			}
 
 		end_time = omp_get_wtime(); // record end time
@@ -246,7 +259,7 @@ int main()
 
 		ProbingHash<int, int> ParallelProbingObject2;
 		//300,000
-		ParallelProbingObject2.rehash(400000);
+		ParallelProbingObject2.rehash(500000);
 
 		// i.	Change the number of threads to match the number of cores on your system 
 
@@ -266,6 +279,13 @@ int main()
 		for (int i = 1; i <= 1000000; i++) 
 		{
 				ParallelProbingObject2.insert(pair<int, int>(i, i));
+
+				// rehash
+				#pragma omp critical
+            	if( ParallelProbingObject2.load_factor() >= 0.75 )  // Rehash when the table is 75% full
+            	{
+                	ParallelProbingObject2.rehash( );
+            	}
 		}
 
 
