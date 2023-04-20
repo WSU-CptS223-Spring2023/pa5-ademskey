@@ -211,7 +211,7 @@ int main()
 		ProbingHash<int, int> ParallelProbingObject2;
 		// i.	Change the number of threads to match the number of cores on your system 
 
-		omp_set_num_threads(NUM_THREADS);
+		omp_set_num_threads(1);
 
 		/* In an OpenMP parallel region (#pragma omp parallel), in order, insert values with keys 1 – 1,000,000. 
 		Inside the parallel region make sure that the value for the iteration number of the loop is shared among all threads. 

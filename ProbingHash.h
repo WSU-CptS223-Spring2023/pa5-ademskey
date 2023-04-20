@@ -30,6 +30,10 @@ public:
     {
         probVector.resize(n);
         this -> tablesize = probVector.size();
+        for (int i = 0; i < n; i++)
+        {
+            this->probVector[i].first = EMPTY;
+        }
     }
 
     ~ProbingHash() 
