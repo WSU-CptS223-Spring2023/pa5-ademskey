@@ -261,7 +261,7 @@ int main()
 		//300,000
 		ParallelProbingObject2.rehash(500000);
 
-		// i.	Change the number of threads to match the number of cores on your system 
+		// i.	Change the number of threads togit match the number of cores on your system 
 
 		omp_set_num_threads(4);
 
