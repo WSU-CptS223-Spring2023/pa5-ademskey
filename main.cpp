@@ -32,7 +32,7 @@ speedup? Explain.
 #include "ProbingHash.h"
 #include <omp.h>
 
-#define NUM_THREADS 2  // update this value with the number of cores in your system. 
+#define NUM_THREADS 4  // update this value with the number of cores in your system. 
 
 int main()
 {
@@ -270,6 +270,10 @@ int main()
 		start_time = omp_get_wtime(); // record start time
 
 		//#pragma omp parallel
+		// Fuctions in ProbingHash.h are parrallized individually. This is because our insert function
+		// does not like like being accessed by more than one core at a time. This is because multiple cores
+		// try to rehash at the same time. This causes seg fault errors and does not work. We did parrallelize
+		// Rehash(), Search(), and deleted, also some sections of insert.
 		for (int i = 1; i <= 1000000; i++) 
 		{
 			ParallelProbingObject2.insert(pair<int, int>(i, i));

@@ -191,9 +191,6 @@ public:
 
     float load_factor() 
     {
-        // if (this -> tablesize == 0)
-        //     return 0;
-        // else
         return (float)(this -> tablesize) / this -> bucket_count();
     }
 
@@ -210,14 +207,15 @@ public:
     {  
         if( entry.first == DELETED )    // If there was an entry that was deleted then we need to bring down the tablesize
         {
-            //#pragma omp atomic
             this->tablesize--;
         }
 
-        if( entry.first == VALID )  // Insert every entry from the old array
+        if( entry.first == VALID )  // Insert everyactive entry from the old array
         {
             int currentPos = entry.second.second;
-            currentPos = currentPos % probVector.size();
+            currentPos = hash(currentPos);
+
+            // Find first open bucket after inital hash
             while (probVector[currentPos].first != EMPTY)
             {
                 currentPos++;
@@ -226,6 +224,7 @@ public:
                 }
             }
             
+            // insert values
             probVector[currentPos].first = VALID;
             probVector[currentPos].second.first = entry.second.first;
             probVector[currentPos].second.second = entry.second.second;
@@ -240,19 +239,34 @@ public:
         // Now we want to create a vector that is the next prime after doubling the current vector size.
         probVector.resize(n);
         
-        for (auto & entry : oldProbVector)
-        {
-            entry.first = EMPTY;  // Make every entry EMPTY
-        }
-
-        for (auto & entry : oldProbVector)
-        {
-            if( entry.first == VALID )
+        #pragma omp parallel for shared(oldProbVector)
+        for (auto & entry : oldProbVector)  // Go through all of the old entries and place them in a good spot
+        {  
+            if( entry.first == DELETED )    // If there was an entry that was deleted then we need to bring down the tablesize
             {
-                insert(entry.second);  // Insert every entry from the old array
+                this->tablesize--;
             }
+
+            if( entry.first == VALID )  // Insert everyactive entry from the old array
+            {
+                int currentPos = entry.second.second;
+                currentPos = currentPos % probVector.size();
+
+                // Find first open bucket linearly
+                while (probVector[currentPos].first != EMPTY)
+                {
+                    currentPos++;
+                    if(currentPos >= probVector.size()){
+                        currentPos = 0;
+                    }
+                }
+                
+                // insert at first open bucket
+                probVector[currentPos].first = VALID;
+                probVector[currentPos].second.first = entry.second.first;
+                probVector[currentPos].second.second = entry.second.second;
+            }    
         }
-        this->tablesize = probVector.size();
     }
 
 private:
