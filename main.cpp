@@ -30,10 +30,9 @@ speedup? Explain.
 #include <fstream>
 #include "ChainingHash.h"
 #include "ProbingHash.h"
-//#include "ParallelProbingHash.h" 
 #include <omp.h>
 
-#define NUM_THREADS 4  // update this value with the number of cores in your system. 
+#define NUM_THREADS 2  // update this value with the number of cores in your system. 
 
 int main()
 {
@@ -259,7 +258,7 @@ int main()
 
 		// i.	Change the number of threads togit match the number of cores on your system 
 
-		omp_set_num_threads(2);
+		omp_set_num_threads(NUM_THREADS);
 
 		/* In an OpenMP parallel region (#pragma omp parallel), in order, insert values with keys 1 – 1,000,000. 
 		Inside the parallel region make sure that the value for the iteration number of the loop is shared among all threads. 
