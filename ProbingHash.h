@@ -58,11 +58,32 @@ public:
 
     V& operator[](const K& key) //returns value at key
     {   //vector<pair<EntryState, Hash<K,V>>>
-        if(key >= probVector.size() || key < 0)
+
+        int keyPos = hash(key);
+        int currentPos = keyPos;
+
+        #pragma omp parallel for shared(probVector)
+        for (int i = 0; i < probVector.size(); i++)
+        {
+            if (probVector[currentPos].second.second != key)
+            {
+                currentPos++;
+                if(currentPos >= probVector.size()){
+                    currentPos = 0;
+                }
+            }
+            
+            if (probVector[currentPos].second.second == key)
+                keyPos = currentPos;
+        }
+
+        if(probVector[keyPos].second.second != key)
+        {
             cout << "key not in hash" << endl;
             //throw std::out_of_range("Key not in hash");
+        } 
         else
-            return probVector[hash(key)].second.second; //returns value of pair in second part of vector
+            return probVector[keyPos].second.second; //returns value of pair in second part of vector
     }
 
     int count(const K& key) 
@@ -115,22 +136,27 @@ public:
     {
 
         int currentPos = hash( input.first ); //hash key to find position
-      
-        #pragma omp critical
-        {
-            while (probVector[currentPos].first != EMPTY)
-            {
-                currentPos++;
-                if(currentPos >= probVector.size()){
-                    currentPos = 0;
-                }
-            }
-        
-            probVector[ currentPos ].second.first = input.first;  // copy info into array
-            probVector[ currentPos ].second.second = input.second;
-            probVector[ currentPos ].first = VALID;  // Mark as active
 
-            tablesize++;
+        #pragma omp parallel
+        {
+        while (probVector[currentPos].first != EMPTY)
+        {
+            currentPos++;
+            if(currentPos >= probVector.size()){
+                currentPos = 0;
+            }
+        }
+        }
+
+        probVector[ currentPos ].second.first = input.first;  // copy info into array
+        probVector[ currentPos ].second.second = input.second;
+        probVector[ currentPos ].first = VALID;  // Mark as active
+
+        tablesize++;
+
+        if( load_factor() >= 0.75 )  // Rehash when the table is 75% full
+        {
+            rehash( );
         }
     }
 
@@ -165,10 +191,10 @@ public:
 
     float load_factor() 
     {
-        if (this -> tablesize == 0)
-            return 0;
-        else
-            return (float)(this -> tablesize) / this -> bucket_count();
+        // if (this -> tablesize == 0)
+        //     return 0;
+        // else
+        return (float)(this -> tablesize) / this -> bucket_count();
     }
 
     void rehash() 
@@ -179,12 +205,12 @@ public:
     // Now we want to create a vector that is the next prime after doubling the current vector size.
     probVector.resize(findNextPrime(2 * oldProbVector.size()));
     
-    #pragma omp parallel for
+    #pragma omp parallel for shared(oldProbVector)
     for (auto & entry : oldProbVector)  // Go through all of the old entries and place them in a good spot
     {  
         if( entry.first == DELETED )    // If there was an entry that was deleted then we need to bring down the tablesize
         {
-            #pragma omp atomic
+            //#pragma omp atomic
             this->tablesize--;
         }
 

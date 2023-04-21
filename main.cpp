@@ -190,16 +190,10 @@ int main()
 
 	   	start_time = omp_get_wtime(); // record start time
 
-	   	#pragma omp parallel for shared(ParallelProbingObject)
+	   	//#pragma omp parallel for shared(ParallelProbingObject)
 			for (int i = 1; i <= 1000000; i++)   //go in a loop through 1 mil
 			{
 				ParallelProbingObject.insert(pair<int, int>(i, i));  // insert the pair (i, i) into the hash table.
-
-							    // rehash
-            	if( ParallelProbingObject.load_factor() >= 0.75 )  // Rehash when the table is 75% full
-            	{
-                	ParallelProbingObject.rehash( );
-            	}
 			}
 
 		end_time = omp_get_wtime(); // record end time
@@ -212,6 +206,7 @@ int main()
 		// Search for the value with key 177 in ParallelProbingHash table. Report the time required to find the value in each table by writing it to the “HashAnalysis.txt” file. 
 		
 		start_time = omp_get_wtime(); // record start time
+		#pragma omp parallel
 		ParallelProbingObject[177]; // search for the value with key 177
 		end_time = omp_get_wtime(); // record end time
 		total_time = end_time - start_time; // calculate total time
@@ -232,16 +227,17 @@ int main()
 		{
 			outfile << "Parallel Probing thread search item not in hash" << std::endl; // write the total time to the file
 		}
-		else
-		{
-			outfile << "Parallel Probing thread search time: " << total_time << std::endl; // write the total time to the file
-		}
+		// else
+		// {
+		// 	outfile << "Parallel Probing thread search time: " << total_time << std::endl; // write the total time to the file
+		// }
 		// Remov
 
-		outfile << "Parallel Probing 1 thread search time: " << total_time << std::endl; // write the total time to the file
+		//outfile << "Parallel Probing 1 thread search time: " << total_time << std::endl; // write the total time to the file
 		// Remove the value with key 177 from ParallelProbingHash table. Report the time required to remove the value with in each table by writing it to the file.  
 
 		start_time = omp_get_wtime(); // record start time
+		#pragma omp parallel
 		ParallelProbingObject.erase(177); // search for the value with key 177
 		end_time = omp_get_wtime(); // record end time
 		total_time = end_time - start_time; // calculate total time
@@ -259,35 +255,26 @@ int main()
 
 		ProbingHash<int, int> ParallelProbingObject2;
 		//300,000
-		ParallelProbingObject2.rehash(500000);
+		//ParallelProbingObject2.rehash(500000);
 
 		// i.	Change the number of threads togit match the number of cores on your system 
 
-		omp_set_num_threads(4);
+		omp_set_num_threads(2);
 
 		/* In an OpenMP parallel region (#pragma omp parallel), in order, insert values with keys 1 – 1,000,000. 
 		Inside the parallel region make sure that the value for the iteration number of the loop is shared among all threads. 
 		For simplicity, the key and value stored are the same.
         */
-
+		
+		//std::cout << "First Size: " << ParallelProbingObject2.bucket_count() << std::endl;
+		
 		start_time = omp_get_wtime(); // record start time
 
-		//omp_lock_t lock;
-		//omp_init_lock(&lock);
-
-		#pragma omp parallel for shared(ParallelProbingObject2)
+		//#pragma omp parallel
 		for (int i = 1; i <= 1000000; i++) 
 		{
-				ParallelProbingObject2.insert(pair<int, int>(i, i));
-
-				// rehash
-				#pragma omp critical
-            	if( ParallelProbingObject2.load_factor() >= 0.75 )  // Rehash when the table is 75% full
-            	{
-                	ParallelProbingObject2.rehash( );
-            	}
+			ParallelProbingObject2.insert(pair<int, int>(i, i));
 		}
-
 
 		end_time = omp_get_wtime(); // record end time
 		total_time = end_time - start_time; // calculate total time
@@ -299,6 +286,7 @@ int main()
 		// Search for the value with key 177 in ParallelProbingHash table. Report the time required to find the value in each table by writing it to the “HashAnalysis.txt” file. 
 		
 		start_time = omp_get_wtime(); // record start time
+		#pragma omp parallel
 		ParallelProbingObject2[177]; // search for the value with key 177
 		end_time = omp_get_wtime(); // record end time
 		total_time = end_time - start_time; // calculate total time
@@ -310,7 +298,7 @@ int main()
 		insertval = 2000000;
 		
 		start_time = omp_get_wtime(); // record start time
-
+		#pragma omp parallel
 		ParallelProbingObject2[2000000]; // search for the value with key 177
 		end_time = omp_get_wtime(); // record end time
 		total_time = end_time - start_time; // calculate total time

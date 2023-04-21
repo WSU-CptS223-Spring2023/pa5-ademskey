@@ -1,29 +1,28 @@
-Chaining insertion time: 1.2738
-Chaining search time: 1.914e-06
+Chaining insertion time: 0.507567
+Chaining search time: 1.024e-06
 chaining search item not in hash
-Chaining delete time: 1.436e-06
+Chaining delete time: 7.76e-07
 Table size: 332744
 Bucket count: 889871
 Load factor: 0.373924
-Probing insertion time: 0.452973
-Probing search time: 5.45002e-07
+Probing insertion time: 1.02295
+Probing search time: 0.0290736
 Probing thread search item not in hash
-Probing delete time: 1.321e-06
+Probing delete time: 5.4e-07
 Table size: 1000000
 Bucket count: 1779761
 Load factor: 0.561873
-Parallel Probing 1 thread insertion time: 0.536029
-Parallel Probing 1 thread search time: 3.79998e-07
+Parallel Probing 1 thread insertion time: 0.47758
+Parallel Probing 1 thread search time: 0.0102479
 Parallel Probing thread search item not in hash
-Parallel Probing 1 thread search time: 6.2744e-05
-Parallel Probing 1 thread delete time: 1.311e-06
+Parallel Probing 1 thread delete time: 2.791e-06
 Table size: 1000000
 Bucket count: 1779761
 Load factor: 0.561873
-Parallel Probing 4 thread insertion time: 0.701217
-Parallel Probing 4 thread search time: 5.36002e-07
+Parallel Probing 4 thread insertion time: 0.750959
+Parallel Probing 4 thread search time: 0.00944437
 Parallel Probing 4 thread search item not in hash
-Parallel Probing 4 thread delete time: 9.53998e-07
-Table size: 1500000
-Bucket count: 2000029
-Load factor: 0.749989
+Parallel Probing 4 thread delete time: 3.4e-07
+Table size: 1000000
+Bucket count: 1779761
+Load factor: 0.561873
